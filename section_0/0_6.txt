@@ -1,0 +1,20 @@
+title Tehtävä 0_6
+
+note over selain:
+selain alkaa suoritaa "tallenna"
+painikkiiseen yhdistetty tapahtumankäsittelijää
+1. lisätään note listaan notes
+2. renderöidään muistiinpanot uudestaan
+3. lähetetään HTTP POST,
+joka on kuvattu seuraavaksi
+end note
+
+selain->palvelin: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+
+note over palvelin:
+palvelin lisää uuden
+muistiinpanon listaan
+end note
+
+palvelin-->selain: 201
+
