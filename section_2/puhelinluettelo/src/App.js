@@ -28,9 +28,8 @@ const App = () => {
 
   const notifyUser = (color, content) => {
     const newMessage = { color, content }
-    console.log('notifying', newMessage)
     setMessage(newMessage)
-    setTimeout(() => setMessage(undefined), 4000)
+    setTimeout(() => setMessage(undefined), 6000)
   }
 
   const askUpdate = (person, newNumber) => {
@@ -40,10 +39,13 @@ const App = () => {
     numbers.updateNumber(uPerson).then(r => {
       setPersons(persons.map(p => p.id !== uPerson.id ? p : uPerson))
       notifyUser(colorSuccess, `${person.name} number updated`)
-    }).catch(r => {
-      console.log(r)
-      removeFromPersons(person.id)
-      notifyUser(colorError, `${person.name} number has been removed by another user`)
+    }).catch(res => {
+      if (res.response.status === 400) {
+        removeFromPersons(person.id)
+        notifyUser(colorError, `${person.name} number has been removed by another user`)
+        return
+      }
+      notifyUser(colorError, res.response.data.error)
     })
   }
 
@@ -69,10 +71,9 @@ const App = () => {
       setPersons(persons.concat(r))
       notifyUser(colorSuccess, `Added ${r.name}`)
     }).catch(r => {
-      console.log(r)
-      notifyUser(colorError, r)}
-      )
-      
+      notifyUser(colorError, r.response.data.error)
+    })
+
   }
 
   const handleNameChange = (event) => {
@@ -84,22 +85,16 @@ const App = () => {
   }
 
   const handleDelete = (event) => {
-    const id = parseInt(event.target.getAttribute('data-id'))
+    const id = event.target.getAttribute('data-id')
     const person = persons.find(p => p.id === id)
 
     if (!(window.confirm(`Delete ${person.name}?`)))
       return
 
-    numbers.tryDelete(person.id).then(r => {
+    numbers.tryDelete(person.id).then(() => {
       removeFromPersons(person.id)
       notifyUser(colorSuccess, `${person.name} removed`)
-    }).catch(r => {
-      const code = r.response.status
-      if (code === 404) {
-        removeFromPersons(person.id)
-        notifyUser(colorError, `${person.name} number has already been removed from server`)
-        return
-      }
+    }).catch(() => {
       notifyUser(colorError, 'Something went wrong')
     })
   }
